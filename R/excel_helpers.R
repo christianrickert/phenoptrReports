@@ -542,8 +542,12 @@ remove_marker_mean = function(s) {
 
 # Create valid Excel worksheet tab names from the given strings
 # Tab names can't be more than 31 characters and may not include any of \/*?:[]
+# Avoid tabulator label collisions by appending a hash value to the truncated string
 as_valid_tab_name = function(strs) {
-  strs %>%
-    stringr::str_replace_all('[\\\\/*?:\\[\\]]', '_') %>%
-    substr(1, 31)
+  strs = stringr::str_replace_all(strs, '[\\\\/*?:\\[\\]]', '_')
+  if(nchar(strs) > 31) {
+    strs_hash = digest::digest(strs, algo = "xxhash64") # 16 characters output
+    strs = paste(substr(strs, 1, 14), "_", substr(strs_hash, 1, 16), sep = "")
+  }
+  return(strs)
 }
