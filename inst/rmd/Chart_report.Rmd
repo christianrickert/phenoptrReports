@@ -261,8 +261,9 @@ for (sheet_name in h_score_names) {
   tma_cols = startsWith(names(h_score), 'TMA ')
   h_score = h_score[, !tma_cols]
   h_score = h_score[, c(1:2, 7:11)] %>% 
-    mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`))
-  
+    mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`)) %>%
+    dplyr::mutate(across(everything(), ~replace(., is.na(.), 0)))
+
   # Find the marker from the first row, if present
   h_score_title = read_xlsx(workbook_path, sheet_name, range='C1', 
                             col_names='title') %>% 
@@ -276,7 +277,8 @@ for (sheet_name in h_score_names) {
   # Clean up duplicate names and reshape for plotting
   tall = h_score %>%
     select(-`H-Score`) %>% 
-    gather('Bin', 'Percent',  -(!!.by), -`Tissue Category`)
+    gather('Bin', 'Percent',  -(!!.by), -`Tissue Category`) %>%
+    dplyr::mutate(across(everything(), ~replace(., is.na(.), 0)))
   
   # Cumulative percent plots as one bar per slide so we don't have to split_slides
   cat('##', title, '\n\n')
@@ -285,7 +287,7 @@ for (sheet_name in h_score_names) {
     geom_col(position=position_stack(reverse=TRUE), na.rm=TRUE) +
     facet_grid(vars(`Tissue Category`), switch='x') +
     scale_fill_manual(values=phenoptr_colors[c(1, 2, 4, 3)]) + 
-    scale_y_continuous(labels=scales::percent) +
+    scale_y_continuous(limits=c(0,1), labels=scales::percent) +
     labs(x='', y='Percent Total Cells per Bin') +
     theme_phenoptr +
     theme(axis.text.x=element_text(face='bold', angle=90))
@@ -298,6 +300,7 @@ for (sheet_name in h_score_names) {
   p = ggplot(h_score, aes(!!.by, `H-Score`)) +
     geom_col(fill=phenoptr_colors[1]) +
     facet_grid(vars(`Tissue Category`), switch='x') +
+    expand_limits(y=c(NA,1)) +
     labs(x='', y='H-Score') +
     theme_phenoptr +
     theme(axis.text.x=element_text(face='bold', angle=90))

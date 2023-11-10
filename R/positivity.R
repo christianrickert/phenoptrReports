@@ -207,11 +207,6 @@ compute_h_score = function(csd, measure, tissue_categories, thresholds,
     ) %>%
     dplyr::ungroup()
 
-  # Add missing tissue categories
-  fill = rep(0, 5) %>% rlang::set_names(names(d)[3:7]) %>% as.list()
-  d = d %>%
-    tidyr::complete(!!.by, `Tissue Category`, fill=fill)
-
   d = add_tissue_category_totals(d, tissue_categories, .by) %>%
     dplyr::mutate(
       `0+` = round(`Count of 0+`/Total, 3),
