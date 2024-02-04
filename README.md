@@ -25,7 +25,11 @@ including the optional installations, before installing `phenoptrReports`.
 Next, install `phenoptrReports` from GitHub. In the RStudio console, 
 copy and paste or type this command:
 ```
-remotes::install_github("akoyabio/phenoptrReports")
+# install devtools package
+install.packages("devtools")
+
+# install phenoptrReports plugin from GitHub
+devtools::install_github("christianrickert/phenoptrReports")
 ```
 
 ----
@@ -145,7 +149,3 @@ of staining across multiple staining runs.
 
 For detailed instructions and requirements, see the
 [Staining consistency report tutorial](https://akoyabio.github.io/phenoptrReports/articles/staining_consistency_report.html).
-
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/akoyabio/phenoptrReports/workflows/R-CMD-check/badge.svg)](https://github.com/akoyabio/phenoptrReports/actions)
-<!-- badges: end -->
