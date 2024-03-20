@@ -26,7 +26,7 @@ params:
     label: Name of the grouping parameter in the worksheets
     value: 'Slide ID'
     choices: [Slide ID, Annotation ID]
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -37,7 +37,7 @@ suppressPackageStartupMessages(library(purrr))
 library(readxl)
 suppressPackageStartupMessages(library(tidyr))
 
-knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=5.5, 
+knitr::opts_chunk$set(echo=FALSE,fig.width=10, fig.height=5.5,
                       comment=NA, warning=FALSE, message=FALSE)
 
 workbook_path = params$workbook_path
@@ -52,7 +52,6 @@ max_heatmaps_per_plot = params$max_heatmaps_per_plot
 sheet_names = readxl::excel_sheets(workbook_path)
 
 # Boilerplate for ggplot theming
-scale_fill_phenoptr = scale_fill_manual(values=phenoptr_colors)
 scale_x_expand = scale_x_discrete(expand=c(0, 1, 0, 1)) # expand_scale(add=1)
 base_line = geom_hline(yintercept=0, color='grey50')
 
@@ -67,13 +66,13 @@ theme_phenoptr = theme_minimal() +
         axis.title=element_text(face='bold'),
         panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),
-        panel.spacing.x = unit(0, "null"), # Take out horizontal space 
+        panel.spacing.x = unit(0, "null"), # Take out horizontal space
         legend.key.size = unit(12, 'points'),
         legend.title=element_text(face='bold'),
         legend.justification = "top"
   )
 
-# If d has more than max_slides_per_plot slides, 
+# If d has more than max_slides_per_plot slides,
 # split it into pieces no bigger than max_per_plot.
 # If `pack` is FALSE, try to make the pieces the same size.
 # If `pack` is TRUE, make all pieces except the last contain `max_per_plot`
@@ -83,7 +82,7 @@ split_slides = function(d, max_per_plot=max_slides_per_plot, pack=FALSE) {
   n_slides = length(slides)
   if (n_slides <= max_per_plot)
     return(list(d))
-  
+
   n_groups = ceiling(n_slides/max_per_plot)
   group_size = ifelse(pack, max_per_plot, ceiling(n_slides/n_groups))
   groups = rep(1:n_groups, each=group_size)
@@ -110,18 +109,18 @@ order_tissue_categories = function(cats) {
 if ('Cell Counts' %in% sheet_names) {
   counts = read_xlsx(workbook_path, 'Cell Counts', skip=1)
   tall = counts %>%
-    select(-starts_with('TMA ')) %>% 
+    select(-starts_with('TMA ')) %>%
     gather('Phenotype', 'Cell Count', -(!!.by), -`Tissue Category`) %>%
-    filter(!Phenotype %in% c('Other')) %>% 
+    filter(!Phenotype %in% c('Other')) %>%
     mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`))
-  
+
   # If there were phenotypes defined, exclude 'Total/All Cells' from the chart(s)
   if (dplyr::n_distinct(tall$Phenotype) > 1)
     tall = tall %>% filter(!Phenotype %in% c('Total Cells', 'All Cells'))
 
   # If any count > 2000 we will make two sets of plots
   plot_limits = if (max(tall$`Cell Count`, na.rm=TRUE) > 2000) c(NA, 1000) else NA
-  
+
   tall = tall %>% split_slides
 
   for (plot_limit in plot_limits) {
@@ -139,10 +138,10 @@ if ('Cell Counts' %in% sheet_names) {
         scale_fill_phenoptr + scale_x_expand +
         labs(x=.by_str, y='Cell Count') +
         theme_phenoptr
-      
+
       if (!is.na(plot_limit))
         p = p + coord_cartesian(ylim=c(0, plot_limit))
-      
+
       print(p)
       cat('\n\n')
     })
@@ -155,21 +154,21 @@ if ('Cell Counts' %in% sheet_names) {
 
 if ('Cell Densities' %in% sheet_names) {
   density = read_xlsx(workbook_path, 'Cell Densities', skip=1)
-  
+
   # Reshape for plotting
-  tall = density %>% 
-    select(-starts_with('TMA ')) %>% 
+  tall = density %>%
+    select(-starts_with('TMA ')) %>%
     gather('Phenotype', 'Density', -(!!.by), -`Tissue Category`) %>%
-    filter(!Phenotype %in% c('Tissue Area (mm2)', 'Other')) %>% 
-    mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`)) 
-  
+    filter(!Phenotype %in% c('Tissue Area (mm2)', 'Other')) %>%
+    mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`))
+
   # If there were phenotypes defined, exclude 'Total/All Cells' from the chart(s)
   if (dplyr::n_distinct(tall$Phenotype) > 1)
     tall = tall %>% filter(!Phenotype %in% c('Total Cells', 'All Cells'))
-  
+
   # If any Density > 2000 we will make two sets of plots
   plot_limits = if (max(tall$Density, na.rm=TRUE) > 2000) c(NA, 1000) else NA
-  
+
   tall = tall %>% split_slides
 
   for (plot_limit in plot_limits) {
@@ -185,10 +184,10 @@ if ('Cell Densities' %in% sheet_names) {
         base_line +
         geom_col(na.rm=TRUE, position='identity') +
         facet_grid(vars(`Tissue Category`), vars(!!.by), switch='x') +
-        scale_fill_phenoptr + scale_x_expand +
+        scale_x_expand +
         labs(x=.by_str, y=expression(bold(paste('Cell Density (', cells/mm^2, ')')))) +
         theme_phenoptr
-      
+
       if (!is.na(plot_limit))
         p = p + coord_cartesian(ylim=c(0, plot_limit))
 
@@ -203,23 +202,23 @@ if ('Cell Densities' %in% sheet_names) {
 
 if ('Mean Expression' %in% sheet_names) {
   expression = read_xlsx(workbook_path, 'Mean Expression', skip=1)
-  
+
   # Reshape for plotting
-  tall = expression %>% 
-    select(-starts_with('TMA ')) %>% 
+  tall = expression %>%
+    select(-starts_with('TMA ')) %>%
     gather('Measure', 'Mean', -(!!.by), -`Tissue Category`) %>%
     mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`)) %>%
-    extract(Measure, into=c('Phenotype', 'Measure'), 
-            regex='(Total Cells|All Cells|[^ ]+) (.*)') %>% 
+    extract(Measure, into=c('Phenotype', 'Measure'),
+            regex='(Total Cells|All Cells|[^ ]+) (.*)') %>%
     mutate(Measure = stringr::str_replace(Measure, '([^(]*) (\\(.*\\) )?Mean', 'Mean \\1 Expression'))
-  
+
   # We may have multiple measures, first split on Measure
   tall_by_measure = split(tall, tall$Measure)
-  
+
   walk(tall_by_measure, function(tall_one_measure) {
     # Now split to fit slides per page
     tall_one_measure = split_slides(tall_one_measure)
-    
+
     walk2(seq_along(tall_one_measure), tall_one_measure, function(i, d) {
       if (length(tall_one_measure) > 1) {
         cat(stringr::str_glue('## {d$Measure[1]} ({i} of {length(tall_one_measure)})\n\n'))
@@ -230,10 +229,10 @@ if ('Mean Expression' %in% sheet_names) {
         base_line +
         geom_col(na.rm=TRUE, position='identity') +
         facet_grid(vars(`Tissue Category`), vars(!!.by), switch='x') +
-        scale_fill_phenoptr + scale_x_expand +
+        scale_x_expand +
         labs(x=.by_str, y=d$Measure[1]) +
         theme_phenoptr
-     
+
       print(p)
       cat('\n\n')
     })
@@ -255,43 +254,43 @@ for (sheet_name in h_score_names) {
     h_score = read_xlsx(workbook_path, sheet_name, skip=2)%>%
       rename_all(~stringr::str_remove(.x, '__1'))
   }
-  
+
   # Select needed columns and order tissue category
   # `dplyr::select` requires unique names, use base subsetting
   tma_cols = startsWith(names(h_score), 'TMA ')
   h_score = h_score[, !tma_cols]
-  h_score = h_score[, c(1:2, 7:11)] %>% 
+  h_score = h_score[, c(1:2, 7:11)] %>%
     mutate(`Tissue Category` = order_tissue_categories(`Tissue Category`)) %>%
     dplyr::mutate(across(everything(), ~replace(., is.na(.), 0)))
 
   # Find the marker from the first row, if present
-  h_score_title = read_xlsx(workbook_path, sheet_name, range='C1', 
-                            col_names='title') %>% 
+  h_score_title = read_xlsx(workbook_path, sheet_name, range='C1',
+                            col_names='title') %>%
     unlist()
   if (stringr::str_detect(h_score_title, 'H-Score,')) {
-    safe_name = stringr::str_remove(h_score_title, "H-Score,") %>% 
+    safe_name = stringr::str_remove(h_score_title, "H-Score,") %>%
       phenoptrReports:::escape_markdown()
     title = stringr::str_glue('Cumulative Percent of Cells in {safe_name} Bins')
   } else title = 'Cumulative Percent of Cells in Expression Bins'
-  
+
   # Clean up duplicate names and reshape for plotting
   tall = h_score %>%
-    select(-`H-Score`) %>% 
+    select(-`H-Score`) %>%
     gather('Bin', 'Percent',  -(!!.by), -`Tissue Category`) %>%
     dplyr::mutate(across(everything(), ~replace(., is.na(.), 0)))
-  
+
   # Cumulative percent plots as one bar per slide so we don't have to split_slides
   cat('##', title, '\n\n')
   p = ggplot(tall,
          aes(!!.by, Percent, fill=Bin)) +
     geom_col(position=position_stack(reverse=TRUE), na.rm=TRUE) +
     facet_grid(vars(`Tissue Category`), switch='x') +
-    scale_fill_manual(values=phenoptr_colors[c(1, 2, 4, 3)]) + 
+    scale_fill_manual(values=phenoptr_colors[c(1, 2, 4, 3)]) +
     scale_y_continuous(limits=c(0,1), labels=scales::percent) +
     labs(x='', y='Percent Total Cells per Bin') +
     theme_phenoptr +
     theme(axis.text.x=element_text(face='bold', angle=90))
-   
+
     print(p)
     cat('\n\n')
 
@@ -304,7 +303,7 @@ for (sheet_name in h_score_names) {
     labs(x='', y='H-Score') +
     theme_phenoptr +
     theme(axis.text.x=element_text(face='bold', angle=90))
-   
+
     print(p)
     cat('\n\n')
 }
@@ -313,7 +312,7 @@ for (sheet_name in h_score_names) {
 ```{r neigbors,results='asis'}
 
 # This makes labels for heatmaps that split the names into two rows
-# so they are readable. The regex splits between _ and [ while 
+# so they are readable. The regex splits between _ and [ while
 # preserving both.
 heatmap_labeller = function(d) {
   stringr::str_split(d[[1]], '(?<=_)(?=\\[)') %>% purrr::transpose()
@@ -322,16 +321,16 @@ heatmap_labeller = function(d) {
 if ('Nearest Neighbors' %in% sheet_names) {
   # Make heat maps of the median distance between phenotypes,
   # one heat map per slide and tissue category.
-  neighbors = read_xlsx(workbook_path, 'Nearest Neighbors', skip=1) %>% 
+  neighbors = read_xlsx(workbook_path, 'Nearest Neighbors', skip=1) %>%
     select(-starts_with('TMA '))
-  
+
   # Filter out Total Cells, they are not interesting and add clutter
-  neighbors = neighbors %>% 
+  neighbors = neighbors %>%
     filter(From != 'Total Cells', To != 'Total Cells')
-  
+
   # Find overall max so we can use the same fill scale on every plot
   max_median = max(neighbors$Median, na.rm=TRUE)
-  
+
   # Split to multiple pages
   categories = levels(order_tissue_categories(neighbors$`Tissue Category`))
   neighbors = split_slides(neighbors, max_heatmaps_per_plot, pack=TRUE)
@@ -344,13 +343,13 @@ if ('Nearest Neighbors' %in% sheet_names) {
       } else {
         cat(stringr::str_glue('## Median Distance to Nearest Neighbor in {category} Tissue\n\n'))
       }
-      d = d %>% 
-        filter(`Tissue Category`==category) %>% 
+      d = d %>%
+        filter(`Tissue Category`==category) %>%
         mutate(From=factor(From, levels=rev(sort(unique(From)))))
       p = ggplot(d, aes(To, From, fill=Median)) +
         geom_raster(na.rm=TRUE) +
         facet_wrap(vars(!!.by), nrow=2, labeller=heatmap_labeller) +
-        scale_fill_gradientn('Median\nDistance', na.value='grey90', 
+        scale_fill_gradientn('Median\nDistance', na.value='grey90',
                              limits=c(0, max_median),
                              colors=RColorBrewer::brewer.pal(9, 'RdYlBu')) +
         theme_phenoptr +
@@ -359,8 +358,8 @@ if ('Nearest Neighbors' %in% sheet_names) {
                                         margin=margin(b=1)),
               axis.text.x=element_text(size=8, angle=90, hjust=1)) +
         coord_equal()
-    
-     
+
+
       print(p)
       cat('\n\n')
     })
@@ -372,32 +371,32 @@ if ('Nearest Neighbors' %in% sheet_names) {
 if ('Count Within' %in% sheet_names) {
   # Make heat maps of the "From with" count for every combination of
   # slide, radius and tissue category.
-  counts = read_xlsx(workbook_path, 'Count Within', skip=1) %>% 
+  counts = read_xlsx(workbook_path, 'Count Within', skip=1) %>%
     select(-starts_with('TMA '))
-  
+
   # Filter out Total Cells, they are not interesting and add clutter,
   # and From == To rows, they can have much higher counts that other
   # combinations which make it hard to interpret the rest of the values.
   counts = counts %>% filter(From != 'Total Cells', To != 'Total Cells')
   counts$`From with`[counts$From==counts$To] = NA
-  
+
   # We will group the plots by radius and tissue category,
   # then split by pages.
   radii = sort(unique(counts$Radius))
   categories = levels(order_tissue_categories(counts$`Tissue Category`))
-  
-  # Find max count per radius and category so we can use the same 
+
+  # Find max count per radius and category so we can use the same
   # fill scale on every page within each group.
-  max_counts = counts %>% group_by(Radius, `Tissue Category`) %>% 
+  max_counts = counts %>% group_by(Radius, `Tissue Category`) %>%
     summarize(max=max(`From with`, na.rm=TRUE))
-  
+
   # Split to multiple pages
   split_counts = split_slides(counts, max_heatmaps_per_plot, pack=TRUE)
-  
+
   walk(radii, function(radius) {
     walk(categories, function(category) {
       iwalk(split_counts, function(d, i) {
-        d = d %>% filter(`Tissue Category`==category, radius==Radius) %>% 
+        d = d %>% filter(`Tissue Category`==category, radius==Radius) %>%
               mutate(From=factor(From, levels=rev(sort(unique(From)))))
 
         if (length(split_counts) > 1) {
@@ -409,15 +408,15 @@ if ('Count Within' %in% sheet_names) {
             '## Count of "From" cells in {category} Tissue with a "To" cell ',
             'within {radius} microns\n\n'))
         }
-        
+
         # Find the max count for this group
-        max_count = max_counts %>% 
+        max_count = max_counts %>%
           filter(`Tissue Category`==category, radius==Radius) %>% pluck('max')
-        
+
         p = ggplot(d, aes(To, From, fill=`From with`)) +
           geom_raster(na.rm=TRUE) +
           facet_wrap(vars(!!.by), nrow=2, labeller=heatmap_labeller) +
-          scale_fill_gradientn('Cell\nCount', na.value='grey90', 
+          scale_fill_gradientn('Cell\nCount', na.value='grey90',
                                limits=c(0, max_count),
                                colors=rev(RColorBrewer::brewer.pal(9, 'RdYlBu'))) +
           theme_phenoptr +
@@ -434,4 +433,3 @@ if ('Count Within' %in% sheet_names) {
   })
 }
 ```
-
