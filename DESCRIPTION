@@ -1,7 +1,7 @@
 Package: phenoptrReports
 Title: Create reports using Phenoptics data
 Version: 0.4.0
-Date: 2023-11-09
+Date: 2024-03-20
 Authors@R: c(
     person("Kent S", "Johnson", role = c("aut", "cre"),
             email = "kjohnson@akoyabio.com"),
@@ -59,9 +59,9 @@ Imports:
     vroom (>= 1.6.5),
     zip (>= 2.3.1)
 Remotes:
-    akoyabio/phenoptr,
-    akoyabio/rtree,
-    hms-dbmi/UpSetR
+    christianrickert/phenoptr,
+    christianrickert/rtree,
+    christianrickert/UpSetR
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Config/testthat/edition: 3
