@@ -1,6 +1,6 @@
 Package: phenoptrReports
 Title: Create reports using Phenoptics data
-Version: 0.3.3.9002
+Version: 0.4.0
 Date: 2023-11-09
 Authors@R: c(
     person("Kent S", "Johnson", role = c("aut", "cre"),
@@ -12,46 +12,52 @@ Authors@R: c(
 Copyright: Akoya Biosciences
 Description: Creates diagnostic and summary reports from inForm data.
 Language: en-US
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.3.3)
 License: Zlib | file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-    colourpicker,
-    dplyr (>= 1.0.0),
-    formattable (>= 0.2),
-    forcats,
-    fs,
-    ggplot2 (>= 3.3.4),
-    glue,
-    jpeg,
-    knitr,
-    magrittr,
-    miniUI (>= 0.1.1),
-    openxlsx,
-    pals,
-    pheatmap,
-    phenoptr (> 0.2.9),
-    png,
-    purrr (>= 0.3),
-    RColorBrewer,
-    readr (>= 1.2.1),
-    readxl (>= 1.2.0),
-    rlang (>= 0.4.0),
-    rmarkdown,
-    scales,
-    shiny (>= 1.3.2),
-    shinydashboard,
-    stringr,
-    tibble (>= 2.0.0),
-    tidyr (>= 1.0.0),
-    tidyselect,
-    tidyverse,
-    tiff (>= 0.1.8),
+    colourpicker (>= 1.3.0),
+    dplyr (>= 1.1.4),
+    formattable (>= 0.2.1),
+    forcats (>= 1.0.0),
+    fs (>= 1.6.3),
+    ggplot2 (>= 3.5.0),
+    ggridges (>= 0.5.6),
+    glue (>= 1.7.0),
+    jpeg (>= 0.1-10),
+    knitr (>= 1.45),
+    magrittr (>= 2.0.3),
+    miniUI (>= 0.1.1.1),
+    openxlsx (>= 4.2.5.2),
+    pals (>= 1.8),
+    pheatmap (>= 1.0.12),
+    phenoptr (>= 0.4.0),
+    png (>= 0.1-8),
+    purrr (>= 1.0.2),
+    RColorBrewer (>= 1.1-3),
+    readr (>= 2.1.5),
+    readxl (>= 1.4.3),
+    rlang (>= 1.1.3),
+    rmarkdown (>= 2.26),
+    rstudioapi (>= 0.15.0),
+    rtree (>= 0.15.0),
+    scales (>= 1.3.0),
+    sessioninfo (>= 1.2.2),
+    shiny (>= 1.8.0),
+    shinydashboard (>= 0.7.2),
+    stringr (>= 1.5.1),
+    testthat (>= 3.2.1),
+    tibble (>= 3.2.1),
+    tidyr (>= 1.3.1),
+    tidyselect (>= 1.2.1),
+    tidyverse (>= 2.0.0),
+    tiff (>= 0.1-12),
     UpSetR (>= 1.4.0),
-    utils,
-    vroom (>= 1.5.1),
-    zip (>= 2.0.0)
+    utils (>= 4.3.3),
+    vdiffr (>= 1.0.7),
+    vroom (>= 1.6.5),
+    zip (>= 2.3.1)
 Remotes:
     akoyabio/phenoptr,
     akoyabio/rtree,
@@ -59,13 +65,6 @@ Remotes:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Config/testthat/edition: 3
-Suggests:
-    ggridges,
-    rstudioapi,
-    rtree,
-    sessioninfo,
-    testthat (>= 3.1.0),
-    vdiffr (>= 1.0.2)
 URL:
     https://akoyabio.github.io/phenoptrReports/,
     https://github.com/akoyabio/phenoptrReports/
