@@ -1,3 +1,7 @@
+# Disclaimer
+
+This fork of `phenoptrReports` contains altering [source changes](https://github.com/christianrickert/phenoptrReports/compare/akoyabio%3AphenoptrReports%3Amain...main) from the [source material](https://github.com/akoyabio/phenoptrReports).
+
 # phenoptrReports <img src="man/figures/Akoya.png" align="right" width="175" />
 
 ## Reports and visualizations from inForm data
