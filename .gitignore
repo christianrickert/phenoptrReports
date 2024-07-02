@@ -9,3 +9,5 @@ tests/testthat/results_ws
 
 inst/doc
 inst/rmd/*.html
+tags
+*.swp
