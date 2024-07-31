@@ -1,3 +1,5 @@
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/christianrickert/phenoptrReports/main?label=fork%20update) ![GitHub Release Date](https://img.shields.io/github/release-date/akoyabio/phenoptrReports?label=upstream%20release)
+
 # Disclaimer
 
 This fork of `phenoptrReports` contains altering [source changes](https://github.com/christianrickert/phenoptrReports/compare/akoyabio%3AphenoptrReports%3Amain...main) from the [source material](https://github.com/akoyabio/phenoptrReports).
